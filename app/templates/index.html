@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+</head>
+<body>
+    <h1>Chat Application</h1>
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="Type your message here..." autofocus>
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const username = prompt("Enter your username");
+        const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+
+        ws.onmessage = function(event) {
+            const chatBox = document.getElementById('chat-box');
+            const message = document.createElement('div');
+            message.className = 'chat-message';
+            const msgData = event.data.split(':');
+            const userSpan = document.createElement('span');
+            userSpan.className = 'username';
+            userSpan.textContent = msgData[0] + ': ';
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text';
+            textSpan.textContent = msgData[1];
+            message.appendChild(userSpan);
+            message.appendChild(textSpan);
+            chatBox.appendChild(message);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Scroll to bottom
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            if (input.value.trim() !== '') {
+                ws.send(input.value);
+                input.value = '';
+                input.focus();
+            }
+        }
+    </script>
+</body>
+</html>
